@@ -1,0 +1,66 @@
+// Import the ABI directly in the file
+const contractABI = [
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_data",
+                "type": "uint256"
+            }
+        ],
+        "name": "set",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "get",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    }
+];
+
+// Contract address (replace with your deployed contract address)
+const contractAddress = "0x7EF2e0048f5bAeDe046f6BF797943daF4ED8CB47"; // Replace with your contract address
+
+let provider, signer, contract;
+
+// Connect to MetaMask and initialize contract
+async function connect() {
+    if (window.ethereum) {
+        provider = new ethers.providers.Web3Provider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        signer = provider.getSigner();
+        contract = new ethers.Contract(contractAddress, contractABI, signer);
+    } else {
+        alert("Please install MetaMask to use this app.");
+    }
+}
+
+connect();
+
+// Set data on the blockchain
+async function setData() {
+    const dataInput = document.getElementById("dataInput").value;
+    if (contract && dataInput) {
+        const tx = await contract.set(dataInput);
+        await tx.wait(); // Wait for the transaction to be mined
+        alert("Data stored successfully!");
+    }
+}
+
+// Retrieve data from the blockchain
+async function getData() {
+    if (contract) {
+        const result = await contract.get();
+        document.getElementById("output").innerText = `Stored Data: ${result}`;
+    }
+}
